@@ -1,7 +1,5 @@
-
 # AI Assisted Triage Support Tool
 # Improved Streamlit prototype interface
-
 
 import streamlit as st
 import pandas as pd
@@ -10,29 +8,23 @@ import joblib
 
 # Load trained model and saved feature columns
 
-
 model = joblib.load("CMP6202_Triage_Final_Model.pkl")
 model_columns = joblib.load("model_columns.pkl")
 
 
 # Page settings
 
-
 st.set_page_config(
     page_title="AI Assisted Triage Support Tool",
     page_icon="🩺",
-    layout="wide"
+    layout="centered"
 )
 
 
-# Custom styling to make the interface look cleaner
-
+# Custom styling to make the interface look cleaner and more formal
 
 st.markdown("""
     <style>
-        .main {
-            background-color: #f7f9fc;
-        }
         .stApp {
             background-color: #f7f9fc;
         }
@@ -41,9 +33,18 @@ st.markdown("""
         }
         .info-box {
             background-color: #e8f1fb;
-            padding: 15px;
+            padding: 16px;
             border-radius: 10px;
             border-left: 6px solid #2c7be5;
+            margin-bottom: 20px;
+            color: #1f2d3d;
+        }
+        .insight-box {
+            background-color: #ffffff;
+            padding: 18px;
+            border-radius: 10px;
+            border: 1px solid #d9e2ec;
+            margin-top: 20px;
             margin-bottom: 20px;
         }
         .high-box {
@@ -80,7 +81,6 @@ st.markdown("""
 
 # Header
 
-
 st.title("🩺 AI Assisted Triage Support Tool")
 
 st.markdown("""
@@ -93,62 +93,26 @@ This prototype predicts a <b>KTAS triage level</b> and converts it into a simple
 st.caption("This prototype is for decision support only and does not replace clinical judgement.")
 
 
-# Layout in two columns
+# Patient input form
 
+st.subheader("Patient Input")
 
-col1, col2 = st.columns([1.2, 1])
-
-
-# Left column: input form
-
-
-with col1:
-    st.subheader("Patient Input")
-
-    age = st.number_input("Age", min_value=0, max_value=120, value=40)
-    patients_per_hour = st.number_input("Patients number per hour", min_value=0, max_value=30, value=5)
-    arrival_mode = st.number_input("Arrival mode", min_value=1, max_value=7, value=2)
-    injury = st.selectbox("Injury", [0, 1], help="0 = No, 1 = Yes")
-    mental = st.number_input("Mental", min_value=1, max_value=4, value=1)
-    pain = st.selectbox("Pain", [0, 1], help="0 = No, 1 = Yes")
-    saturation = st.number_input("Saturation", min_value=50.0, max_value=100.0, value=98.0)
-    age_bracket = st.selectbox("Age bracket", [0, 1, 2, 3], help="0=0–18, 1=19–40, 2=41–60, 3=61+")
-
-
-# Right column: explanation panel
-
-
-with col2:
-    st.subheader("Model Insight")
-
-    st.markdown("""
-**Most important features in the final model included:**
-- Age  
-- Pain score related variables  
-- Patients number per hour  
-- Injury status  
-- Arrival mode  
-- Oxygen saturation  
-- Mental state  
-
-These variables reflect clinically meaningful patterns that are relevant to emergency triage decision making.
-""")
-
-    st.markdown("""
-<div class="small-note">
-The model was retrained after removing leakage features so that predictions better reflect a realistic triage scenario.
-</div>
-""", unsafe_allow_html=True)
+age = st.number_input("Age", min_value=0, max_value=120, value=40)
+patients_per_hour = st.number_input("Patients number per hour", min_value=0, max_value=30, value=5)
+arrival_mode = st.number_input("Arrival mode", min_value=1, max_value=7, value=2)
+injury = st.selectbox("Injury", [0, 1], help="0 = No, 1 = Yes")
+mental = st.number_input("Mental", min_value=1, max_value=4, value=1)
+pain = st.selectbox("Pain", [0, 1], help="0 = No, 1 = Yes")
+saturation = st.number_input("Saturation", min_value=50.0, max_value=100.0, value=98.0)
+age_bracket = st.selectbox("Age bracket", [0, 1, 2, 3], help="0=0–18, 1=19–40, 2=41–60, 3=61+")
 
 
 # Build an empty input row using saved model columns
-
 
 input_data = pd.DataFrame(0, index=[0], columns=model_columns)
 
 
 # Fill selected fields only
-
 
 if "Age" in input_data.columns:
     input_data.at[0, "Age"] = age
@@ -176,7 +140,6 @@ if "age_bracket" in input_data.columns:
 
 
 # Prediction section
-
 
 st.markdown("---")
 
@@ -218,8 +181,28 @@ if st.button("Predict Triage Level"):
     st.dataframe(input_data.loc[:, (input_data != 0).any(axis=0)])
 
 
-# Footer
+# Model insight section
 
+st.markdown("""
+<div class="insight-box">
+<h3>Model Insight</h3>
+<p><b>Most important features in the final model included:</b></p>
+<ul>
+<li>Age</li>
+<li>Pain score related variables</li>
+<li>Patients number per hour</li>
+<li>Injury status</li>
+<li>Arrival mode</li>
+<li>Oxygen saturation</li>
+<li>Mental state</li>
+</ul>
+<p>These variables reflect clinically meaningful patterns that are relevant to emergency triage decision making.</p>
+<p class="small-note">The model was retrained after removing leakage features so that predictions better reflect a realistic triage scenario.</p>
+</div>
+""", unsafe_allow_html=True)
+
+
+# Footer
 
 st.markdown("---")
 st.caption("Developed as part of CMP6202 Individual Honours Project.")
